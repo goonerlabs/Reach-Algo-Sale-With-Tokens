@@ -27,7 +27,7 @@ export const main = Reach.App(() => {
    description: Bytes(200),
    owner: Address,
    contract: Contract,
-   ID: UInt,
+   id: UInt,
    hardCap: UInt,
    softCap: UInt,
    maxContribution: UInt,
@@ -37,8 +37,7 @@ export const main = Reach.App(() => {
   getParams: Object({
    name: Bytes(32),
    symbol: Bytes(8),
-   supply: UInt,
-   tokenID: UInt
+   tokenid: UInt
   }),
  });
 
@@ -56,19 +55,17 @@ export const main = Reach.App(() => {
 
  Deployer.only(() => {
  const project = declassify(interact.getProject);
- const {name, symbol, supply, tokenID} = declassify(interact.getParams)
+ const {name, symbol, tokenid} = declassify(interact.getParams)
  });
- Deployer.publish(project, name, symbol, supply, tokenID);
- Projects.log(state.pad('created'), project.ID);
+ Deployer.publish(project, name, symbol, tokenid);
+ Projects.log(state.pad('created'), project.id);
 
- const tok = {name, symbol, supply};
- const tok1 = new Token(tok);
- Projects.log(state.pad('tokenCreated'), tokenID);
+ const tok = {name, symbol};
+  const tok1 = new Token(tok);
+ Projects.log(state.pad('tokenCreated'), tokenid);
  commit();
 
- Deployer.publish().pay([[supply, tok1]]);
- require(project.PrivateSaleAmt <= supply);
- require(project.PrivateSaleAmt <= UInt.max);
+ Deployer.publish().pay([[tok1.supply(), tok1]]);
  
 
  const end = lastConsensusTime() + DEADLINE;
@@ -76,7 +73,17 @@ export const main = Reach.App(() => {
  commit();
 
  Deployer.publish();
- transfer(balance(tok1) - project.PrivateSaleAmt).to(project.owner);
+ if(project.PrivateSaleAmt > balance(tok1)) {
+  transfer(balance(tok1) - project.PrivateSaleAmt).to(project.owner);
+  }else {
+    transfer(balance(tok1)).to(project.owner);
+    transfer(balance()).to(Deployer);
+    tok1.burn(tok1.supply());
+    tok1.destroy();
+    commit();
+    exit();
+  }
+ 
 
  const contributors = new Map(Address, Address);
  const amtContributed = new Map(Address, UInt);
@@ -98,12 +105,12 @@ export const main = Reach.App(() => {
  })
  .timeout(absoluteTime(end), () => {
   Deployer.publish();
-  Projects.log(state.pad('timeout'), project.ID);
+  Projects.log(state.pad('timeout'), project.id);
   return [count, amtTotal, lastAddress, KeepGoing];
  });
 
  if(checkStatus(project.hardCap, amtTotal) == PASSED){
-  Projects.log(state.pad('passed'), project.ID);
+  Projects.log(state.pad('passed'), project.id);
   transfer(balance() * 1 / 100).to(Deployer);
   commit();
   Deployer.publish();
@@ -124,13 +131,13 @@ export const main = Reach.App(() => {
       fromMapAdd(contributors[this]));
      return [newCountTok - 1, balance(tok1)];
     }else {
-     Projects.log(state.pad('claimFailed'), project.ID);
+     Projects.log(state.pad('claimFailed'), project.id);
      return [newCountTok, balance(tok1)];
     }
    }))
  } else {
   if(amtTotal >= project.softCap){
-   Projects.log(state.pad('passed'), project.ID);
+   Projects.log(state.pad('passed'), project.id);
    transfer(balance() * 1 / 100).to(Deployer);
    commit();
    Deployer.publish();
@@ -149,15 +156,15 @@ export const main = Reach.App(() => {
     if(balance() >= fromMapAmt(amtContributed[this]) && contributorsSet.member(this)) {
      transfer(balance(tok1) * amtTotal / project.PrivateSaleAmt * (fromMapAmt(amtContributed[this]))).to(
       fromMapAdd(contributors[this]));
-     return [newCountTok - 1, balance(tok1)];
+     return [balance(tok1), newCountTok - 1];
     }else {
-     Projects.log(state.pad('claimFailed'), project.ID);
-     return [newCountTok, balance(tok1)];
+     Projects.log(state.pad('claimFailed'), project.id);
+     return [balance(tok1), newCountTok];
     }
    }))
    
   } else {
-   Projects.log(state.pad('failed'), project.ID);
+   Projects.log(state.pad('failed'), project.id);
    // transfer(balance(tok1)).to(project.owner);
    const fromMapAdd = (m) => fromMaybe(m, (() => lastAddress), ((x) => x));
    const fromMapAmt = (m) => fromMaybe(m, (() => 0), ((x) => x));
@@ -173,7 +180,7 @@ export const main = Reach.App(() => {
       fromMapAdd(contributors[this]));
      return [newCount - 1, balance()];
     }else {
-     Projects.log(state.pad('refundFailed'), project.ID);
+     Projects.log(state.pad('refundFailed'), project.id);
      return [newCount, balance()]
     }
    }))

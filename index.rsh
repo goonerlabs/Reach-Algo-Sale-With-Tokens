@@ -58,9 +58,9 @@ export const main = Reach.App(() => {
   });
 
   const Contributors = API('Contributors', {
-  contribute: Fun([UInt], Null),
-  claimRefund: Fun([], Null),
-  claimToken: Fun([], Null),
+  contribute: Fun([UInt], UInt),
+  claimRefund: Fun([], Bool),
+  claimToken: Fun([], Bool),
   creating: Fun([objectRepresentation], Null),
   contributed: Fun([UInt, UInt], Null),
   timedOut: Fun([UInt, UInt], Null),
@@ -121,18 +121,23 @@ export const main = Reach.App(() => {
   .invariant(balance() == amtTotal)
   .while(lastConsensusTime() <= end && KeepGoing)
   .api_(Contributors.contribute, (amt) => {
+    check(amt > 0, "Contribution too small")
     const payment = amt;
     return [payment, (notify) => {
-    notify(null);
-    contributors[this] = this;
+    notify(balance());
+    if (contributorsSet.member(this)) {
+      const fromMapAmt = (m) => fromMaybe(m, (() => 0), ((x) => x));
+      amtContributed[this] =fromMapAmt(amtContributed[this]) + amt;
+    } else {
+      contributors[this] = this;
     contributorsSet.insert(this);
-    amtContributed[this] = payment;
+    amtContributed[this] = amt;
+    }
     return [count + 1, amtTotal + amt, this, checkStatus(project.hardCap, amtTotal + amt) == INPROGRESS ? true : false]
     }]
   })
   .timeout(absoluteTime(end), () => {
     Deployer.publish();
-    Projects.log(state.pad('timeout'), project.id);
     return [count, amtTotal, lastAddress, KeepGoing];
   });
 
@@ -152,13 +157,16 @@ export const main = Reach.App(() => {
     .invariant(balance(tok1) == currentBalanceTok)
     .while(newCountTok > 0 && currentBalanceTok > 0)
     .api(Contributors.claimToken, (notify => {
-      notify(null);
       if(balance() >= fromMapAmt(amtContributed[this]) && contributorsSet.member(this)) {
       transfer(balance(tok1) * amtTotal / project.PrivateSaleAmt * (fromMapAmt(amtContributed[this]))).to(
         fromMapAdd(contributors[this]));
+        contributorsSet.remove(this);
+      Projects.log(state.pad('claimPassed'), project.id);
+      notify(true);
       return [newCountTok - 1, balance(tok1)];
       }else {
       Projects.log(state.pad('claimFailed'), project.id);
+      notify(false);
       return [newCountTok, balance(tok1)];
       }
     }))
@@ -179,13 +187,16 @@ export const main = Reach.App(() => {
       .invariant(balance(tok1) == currentBalanceTok)
       .while(newCountTok > 0 && currentBalanceTok > 0)
       .api(Contributors.claimToken, (notify => {
-        notify(null);
         if(balance() >= fromMapAmt(amtContributed[this]) && contributorsSet.member(this)) {
         transfer(balance(tok1) * amtTotal / project.PrivateSaleAmt * (fromMapAmt(amtContributed[this]))).to(
           fromMapAdd(contributors[this]));
+        contributorsSet.remove(this);
+        Projects.log(state.pad('claimPaseed'), project.id);
+        notify(true);
         return [balance(tok1), newCountTok - 1];
         }else {
         Projects.log(state.pad('claimFailed'), project.id);
+        notify(false);
         return [balance(tok1), newCountTok];
         }
       }))
@@ -201,13 +212,16 @@ export const main = Reach.App(() => {
         .invariant(balance() == currentBalance)
         .while(newCount > 0 && currentBalance > 0)
         .api(Contributors.claimRefund, (notify => {
-          notify(null);
           if(balance() >= fromMapAmt(amtContributed[this]) && contributorsSet.member(this)) {
           transfer(fromMapAmt(amtContributed[this])).to(
             fromMapAdd(contributors[this]));
+          contributorsSet.remove(this);
+          Projects.log(state.pad('refundPassed'), project.id);
+          notify(true);
           return [newCount - 1, balance()];
           }else {
           Projects.log(state.pad('refundFailed'), project.id);
+          notify(false);
           return [newCount, balance()]
           }
         }))

@@ -100,7 +100,7 @@ export const main = Reach.App(() => {
   commit();
 
   Deployer.publish();
-  if(project.PrivateSaleAmt > balance(tok1)) {
+  if(balance(tok1) > project.PrivateSaleAmt) {
     transfer(balance(tok1) - project.PrivateSaleAmt).to(project.owner);
   }else {
     transfer(balance(tok1)).to(project.owner);

@@ -256,6 +256,7 @@ const ReachContextProvider = ({ children }) => {
             ctc.p.Deployer({
                 getProposal: {
                     ...proposal,
+                    tokenid: projectToken.id,
                 },
                 isProposal: true,
                 getContract,

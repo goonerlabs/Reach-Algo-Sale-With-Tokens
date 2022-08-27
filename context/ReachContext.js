@@ -316,14 +316,12 @@ const ReachContextProvider = ({ children }) => {
         <ReachContext.Provider value={ ReachContextValues }>
             <div className={ fmtClasses(styles.header, !contract?.ctcInfoStr ? styles.itemsCenter : '') }>
                 <div className={ fmtClasses(styles.brandContainer) }>
-                    <h1>Reach DAO</h1>
+                    <h1>ALGO Sale</h1>
                 </div>
                 <div className={ fmtClasses(styles.navContainer) }>
                     { contract?.ctcInfoStr &&
                         <ul className={ fmtClasses(styles.navList, styles.flat) }>
-                            <li className={ fmtClasses(views.view === 'InfoCenter' ? styles.navItemActive : styles.navItem) }>Info Center</li>
-                            <li className={ fmtClasses(views.view === 'Proposals' ? styles.navItemActive : styles.navItem) } onClick={ () => setViews({ view: 'Proposals', wrapper: 'ProposalWrapper' }) }>Proposals</li>
-                            <li className={ fmtClasses(views.view === 'Bounties' ? styles.navItemActive : styles.navItem) }>Bounties</li>
+                            <li className={ fmtClasses(views.view === 'Proposals' ? styles.navItemActive : styles.navItem) } onClick={ () => setViews({ view: 'Proposals', wrapper: 'ProposalWrapper' }) }>Projects</li>
                         </ul> }
                 </div>
             </div>

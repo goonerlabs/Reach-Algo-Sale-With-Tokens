@@ -296,7 +296,7 @@ const MakeProposal = () => {
                     styles.widthMax,
                     styles.dInlineBlock,
                 ) }>
-                    Enter the number of tokens you want to amke availabe for the private sale
+                    Enter the number of tokens you want to make availabe for the private sale
                 </span>
                 <input
                     spellCheck='false'

@@ -232,7 +232,7 @@ const ReachContextProvider = ({ children }) => {
             // tokenSymbol: 'GLabs',
             maxContribution: 10000,
             minContribution: 1000,
-            privateSaleAmt: 100,
+            // privateSaleAmt: 100,
         };
         // const testToken = await reach.launchToken(user.account, proposal.tokenName, proposal.tokenSymbol);
         const interact = {
@@ -263,7 +263,7 @@ const ReachContextProvider = ({ children }) => {
                 },
                 isProject: true,
             });
-            ctcInfo = JSON.stringify(await ctc.getInfo(), null, 2);
+            const ctcInfo = JSON.stringify(await ctc.getInfo(), null, 2);
             console.log(ctcInfo);
             ctc.events.log.monitor(timeoutProposal);
             ctc.events.created.monitor(updateProposals);

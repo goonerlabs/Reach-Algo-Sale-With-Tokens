@@ -258,7 +258,7 @@ const ReachContextProvider = ({ children }) => {
                     ...proposal,
                     tokenid: parseInt(projectToken.id),
                 },
-                isProposal: true,
+                isProject: true,
                 getContract,
             });
             ctcInfo = JSON.stringify(await ctc.getInfo(), null, 2);

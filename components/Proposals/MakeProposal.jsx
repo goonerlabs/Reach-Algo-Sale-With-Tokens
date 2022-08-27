@@ -47,7 +47,7 @@ const MakeProposal = () => {
             minContribution: inputs['minContribution'],
             // tokenName: inputs['tokenName'],
             // tokenSymbol: inputs['tokenSymbol'],
-            privateSaleAmt: inputs['privateSaleAmt'],
+            // privateSaleAmt: inputs['privateSaleAmt'],
         };
 
         await makeProposal(proposal);
@@ -285,7 +285,7 @@ const MakeProposal = () => {
                     onChange={ handleOnChange }
                 />
             </label>  */}
-            <label htmlFor="privateSaleAmt" className={ fmtClasses(
+            {/* <label htmlFor="privateSaleAmt" className={ fmtClasses(
                 styles.widthMax,
                 styles.flat,
                 styles.container,
@@ -309,7 +309,7 @@ const MakeProposal = () => {
                     name="privateSaleAmt"
                     onChange={ handleOnChange }
                 />
-            </label>
+            </label> */}
             <button onClick={ makeAndUpdateProposals } className={ fmtClasses(
                 styles.width70,
                 styles.actionButton,
@@ -322,8 +322,7 @@ const MakeProposal = () => {
                     !inputs?.['hardCap'] ||
                     !inputs?.['softCap'] ||
                     !inputs?.['maxContribution'] ||
-                    !inputs?.['minContribution'] ||
-                    !inputs?.['privateSaleAmt']
+                    !inputs?.['minContribution']
                 }
             >Create a Project</button>
         </div>

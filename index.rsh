@@ -33,10 +33,8 @@ export const main = Reach.App(() => {
    maxContribution: UInt,
    minContribution: UInt,
    PrivateSaleAmt: UInt,
-  }),
-  getParams: Object({
-   name: Bytes(32),
-   symbol: Bytes(8),
+   tokenName: Bytes(32),
+   tokenSymbol: Bytes(8),
    tokenid: UInt
   }),
   getContract: Fun([], Bytes(100)),
@@ -75,29 +73,22 @@ export const main = Reach.App(() => {
 
  Deployer.only(() => {
   const isProject = declassify(interact.isProject);
-  const {name, symbol, tokenid} = declassify(interact.getParams)
+  const project = declassify(interact.getProject)
   });
- Deployer.publish(isProject, name, symbol, tokenid);
+ Deployer.publish(isProject, project);
+ Projects.log(state.pad('created'), project.id);
+ const name = project.tokenName;
+ const symbol = project.tokenSymbol;
  const tok = {name, symbol};
  const tok1 = new Token(tok);
- Projects.log(state.pad('tokenCreated'), tokenid);
+ Projects.log(state.pad('tokenCreated'), project.tokenid);
  commit();
 
  Deployer.publish().pay([[tok1.supply(), tok1]]);
 
  if(isProject){
-  commit();
-  Deployer.only(() => {
-  const project = declassify(interact.getProject);
-  });
-  Deployer.publish(project);
-
-  Projects.log(state.pad('created'), project.id);
- 
-
+  commit();  
   const end = lastConsensusTime() + DEADLINE;
-
-  commit();
 
   Deployer.publish();
   if(balance(tok1) > project.PrivateSaleAmt) {

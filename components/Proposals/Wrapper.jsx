@@ -7,7 +7,7 @@ const ProposalWrapper = ({ children }) => {
         <div className={ fmtClasses(styles.flat) }>
             <div className={ fmtClasses(styles.flat) }>
                 <header className={ fmtClasses(styles.label) }>
-                    <h1>Proposals</h1>
+                    <h1>Projects</h1>
                 </header>
                 <div className={ fmtClasses(styles.flat, styles.children) }>
                     { children }

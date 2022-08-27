@@ -45,6 +45,8 @@ const MakeProposal = () => {
             softCap: inputs['softCap'],
             maxContribution: inputs['maxContribution'],
             minContribution: inputs['minContribution'],
+            tokenName: inputs['tokenName'],
+            tokenSymbol: inputs['tokenSymbol'],
             privateSaleAmt: inputs['privateSaleAmt'],
         };
 
@@ -232,6 +234,57 @@ const MakeProposal = () => {
                     onChange={ handleOnChange }
                 />
             </label>
+            <h2 className={ fmtClasses(styles.infoText, styles.widthMax) }>Enter Token Information</h2>
+            <label htmlFor="tokenName" className={ fmtClasses(
+                styles.widthMax,
+                styles.flat,
+                styles.container,
+                styles.flex,
+                styles.itemsCenter,
+            ) }>
+                <span className={ fmtClasses(
+                    styles.widthMax,
+                    styles.dInlineBlock,
+                ) }>
+                    Enter the name of the Token you want to launch
+                </span>
+                <input
+                    spellCheck='false'
+                    className={ fmtClasses(
+                        styles.field,
+                        styles.widthMax,
+                    ) }
+                    id="tokenName"
+                    type="text"
+                    name="tokenName"
+                    onChange={ handleOnChange }
+                />
+            </label> 
+            <label htmlFor="tokenSymbol" className={ fmtClasses(
+                styles.widthMax,
+                styles.flat,
+                styles.container,
+                styles.flex,
+                styles.itemsCenter,
+            ) }>
+                <span className={ fmtClasses(
+                    styles.widthMax,
+                    styles.dInlineBlock,
+                ) }>
+                    Enter the symbol for the Token
+                </span>
+                <input
+                    spellCheck='false'
+                    className={ fmtClasses(
+                        styles.field,
+                        styles.widthMax,
+                    ) }
+                    id="tokenSymbol"
+                    type="text"
+                    name="tokenSymbol"
+                    onChange={ handleOnChange }
+                />
+            </label> 
             <label htmlFor="privateSaleAmt" className={ fmtClasses(
                 styles.widthMax,
                 styles.flat,

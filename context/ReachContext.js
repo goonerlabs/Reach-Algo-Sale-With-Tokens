@@ -105,33 +105,12 @@ const ReachContextProvider = ({ children }) => {
         }
     };
 
-    // TODO implement the logic to send a contribution, positive or negative
-    const connectAndUpvote = async (id, ctcInfoStr) => {
-        try {
-            const ctc = user.account.contract(backend, JSON.parse(ctcInfoStr));
-            const upvotes = await ctc.apis.Voters.upvote();
-            await ctc.apis.Voters.upvoted(id, parseInt(upvotes));
-        } catch (error) {
-            console.log({ error });
-        }
-    };
-
-    const connectAndDownvote = async (id, ctcInfoStr) => {
-        try {
-            const ctc = user.account.contract(backend, JSON.parse(ctcInfoStr));
-            const downvotes = await ctc.apis.Voters.downvote();
-            await ctc.apis.Voters.downvoted(id, parseInt(downvotes));
-        } catch (error) {
-            console.log({ error });
-        }
-    };
-
     // TODO figure out the use of this later
     const makeContribution = async (amount, id, ctcInfoStr) => {
         try {
             const ctc = user.account.contract(backend, JSON.parse(ctcInfoStr));
-            const contribs = await ctc.apis.Voters.contribute(reach.parseCurrency(amount));
-            await ctc.apis.Voters.contributed(id, parseInt(contribs));
+            const contribs = await ctc.apis.Contributors.contribute(reach.parseCurrency(amount));
+            await ctc.apis.Contributors.contributed(id, parseInt(contribs));
         } catch (error) {
             console.log({ error });
         }
@@ -140,7 +119,7 @@ const ReachContextProvider = ({ children }) => {
     const connectAndClaimRefund = async (ctcInfoStr) => {
         try {
             const ctc = user.account.contract(backend, JSON.parse(ctcInfoStr));
-            const didRefund = await ctc.apis.Voters.claimRefund();
+            const didRefund = await ctc.apis.Contributors.claimRefund();
             if (didRefund) {
                 alert('Refund Success');
             } else {
@@ -155,22 +134,9 @@ const ReachContextProvider = ({ children }) => {
         setViews({ views: 'Confirmed', wrapper: 'ProposalWrapper' });
     };
 
-    const DeployerInteract = {
-        getProposal: {
-            id: 1,
-            title: 'AroTable',
-            link: 'https://github.com/Aro1914/AroTable/blob/main/README.md',
-            description: `A self-sorting number data structure`,
-            owner: user.account,
-            deadline,
-            numMembers: 5,
-            isProposal: false,
-        },
-    };
-
     // TODO create a function to add to the Map of proposals stored in our contract;
     const updateProposals = async ({ when, what }) => {
-        await contractInstance.apis.Voters.created({
+        await contractInstance.apis.Contributors.creating({
             id: parseInt(what[0]),
             title: noneNull(what[1]),
             link: noneNull(what[2]),
@@ -189,8 +155,6 @@ const ReachContextProvider = ({ children }) => {
             description: noneNull(what[3]),
             owner: noneNull(what[4]),
             contract: noneNull(what[5]),
-            upvotes: 0,
-            downvotes: 0,
             contribs: 0,
             timedOut: false,
             didPass: false,
@@ -201,16 +165,6 @@ const ReachContextProvider = ({ children }) => {
     const acknowledge = ({ when, what }) => {
         const ifState = x => x.padEnd(20, '\u0000');
         switch (what[0]) {
-            case ifState('upvoted'):
-                const uProposal = proposals.filter(el => Number(el.id) === Number(parseInt(what[1])))[0];
-                uProposal.upvotes = parseInt(what[2]);
-                setProposals([...proposals.filter(el => Number(el.id) !== Number(parseInt(what[1]))), uProposal]);
-                break;
-            case ifState('downvoted'):
-                const dProposal = proposals.filter(el => Number(el.id) === Number(parseInt(what[1])))[0];
-                dProposal.downvotes = parseInt(parseInt(what[2]));
-                setProposals([...proposals.filter(el => Number(el.id) !== Number(parseInt(what[2]))), dProposal]);
-                break;
             case ifState('contributed'):
                 const cProposal = proposals.filter(el => Number(el.id) === Number(parseInt(what[1])))[0];
                 cProposal.contribs = reach.formatCurrency(parseInt(what[2]), 4);
@@ -239,10 +193,10 @@ const ReachContextProvider = ({ children }) => {
         const ifState = x => x.padEnd(20, "\u0000");
         switch (what[0]) {
             case ifState('passed'):
-                await contractInstance.apis.Voters.timedOut(parseInt(what[1]), 1);
+                await contractInstance.apis.Contributors.timedOut(parseInt(what[1]), 1);
                 break;
             case ifState('failed'):
-                await contractInstance.apis.Voters.timedOut(parseInt(what[1]), 0);
+                await contractInstance.apis.Contributors.timedOut(parseInt(what[1]), 0);
                 break;
             default:
                 alert('Unhandled error..');
@@ -258,9 +212,28 @@ const ReachContextProvider = ({ children }) => {
         const getContract = () => {
             return contract?.ctcInfoStr;
         };
+        const proposal = {
+            id: 1,
+            title: 'AroTable',
+            link: 'https://github.com/Aro1914/AroTable/blob/main/README.md',
+            description: `A self-sorting number data structure`,
+            owner: user.account,
+            hardCap: 10000,
+            softCap: 10000,
+            tokenName: 'Gooner',
+            tokenSymbol: 'GLabs',
+            makeContribution: 10000,
+            minContribution: 1000,
+            privateSaleAmt: 100,
+        };
+        const testToken = await reach.launchToken(user.account, proposal.tokenName, proposal.tokenSymbol);
         const interact = {
-            ...DeployerInteract,
+            getProject: {
+                ...proposal,
+                tokenid: testToken.id
+            },
             getContract,
+            isProject: false,
         };
         ctc.p.Deployer(interact);
         const ctcInfoStr = JSON.stringify(await ctc.getInfo(), null, 2);
@@ -274,19 +247,17 @@ const ReachContextProvider = ({ children }) => {
     const makeProposal = async (proposal) => {
         const proposalSetup = async () => {
             // TODO implement the interact functionality
-            const deadline = { ETH: 1000, ALGO: 10000, CFX: 100000 }[reach.connector];
             const ctc = user.account.contract(backend);
             let ctcInfo = '';
             const getContract = () => {
                 return ctcInfo;
             };
+            const projectToken = await reach.launchToken(user.account, proposal.tokenName, proposal.tokenSymbol);
             ctc.p.Deployer({
                 getProposal: {
                     ...proposal,
-                    deadline: deadline,
-                    numMembers: 5,
-                    isProposal: true,
                 },
+                isProposal: true,
                 getContract,
             });
             ctcInfo = JSON.stringify(await ctc.getInfo(), null, 2);
@@ -332,8 +303,6 @@ const ReachContextProvider = ({ children }) => {
         // connectAndContribute,
         setContract,
         makeContribution,
-        connectAndUpvote,
-        connectAndDownvote,
         connectAndClaimRefund,
         confirmContribution,
 

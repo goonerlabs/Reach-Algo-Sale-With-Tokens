@@ -26,7 +26,6 @@ export const main = Reach.App(() => {
       link: Bytes(150),
       description: Bytes(180),
       owner: Address,
-      contract: Contract,
       id: UInt,
       hardCap: UInt,
       softCap: UInt,
@@ -37,7 +36,7 @@ export const main = Reach.App(() => {
       tokenSymbol: Bytes(8),
       tokenid: UInt
     }),
-    getContract: Fun([], Bytes(100)),
+    getContract: Fun([], Contract),
     isProject: Bool,
   });
 
@@ -47,7 +46,7 @@ export const main = Reach.App(() => {
     ["link", Bytes(150)],
     ["description", Bytes(180)],
     ["owner", Address],
-    ["contractInfo", Bytes(100)]
+    ["contractInfo", Contract]
   ]);
 
   const Contributors = API('Contributors', {
@@ -61,18 +60,21 @@ export const main = Reach.App(() => {
 
   const Projects = Events({
     log: [state, UInt],
-    created: [UInt, Bytes(20), Bytes(150), Bytes(180), Address, Bytes(100)],
-    create: [UInt, Bytes(20), Bytes(150), Bytes(180), Address, Bytes(100)],
+    created: [UInt, Bytes(20), Bytes(150), Bytes(180), Address, Contract],
+    create: [UInt, Bytes(20), Bytes(150), Bytes(180), Address, Contract],
     that: [state, UInt, UInt],
   });
 
   init();
+  Deployer.publish();
+  commit();
 
   Deployer.only(() => {
     const isProject = declassify(interact.isProject);
     const project = declassify(interact.getProject);
+    const contractInfo = declassify(interact.getContract());
   });
-  Deployer.publish(isProject, project);
+  Deployer.publish(isProject, project, contractInfo);
   Projects.log(state.pad('created'), project.id);
   const name = project.tokenName;
   const symbol = project.tokenSymbol;
@@ -103,7 +105,7 @@ export const main = Reach.App(() => {
     const contributors = new Map(Address, Address);
     const amtContributed = new Map(Address, UInt);
     const contributorsSet = new Set();
-
+    Projects.created(project.id, project.title, project.link, project.description, project.owner, contractInfo);
     const [count, amtTotal, lastAddress, KeepGoing] =
       parallelReduce([0, 0, Deployer, true])
         .invariant(balance() == amtTotal)

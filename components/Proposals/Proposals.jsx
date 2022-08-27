@@ -6,10 +6,9 @@ import Contribute from "./Contribute";
 import proposal from "../../styles/Proposals.module.css";
 
 const Proposals = () => {
-    const { setContract, connectAndClaimRefund, proposals,  connectAndClaimTokens, sortArrayOfObjects, setViews } = useReach();
+    const { setContract, connectAndClaimRefund, proposals, connectAndClaimTokens, sortArrayOfObjects, setViews } = useReach();
     const [page, setPage] = useState(1);
     const [pageNumbers, setPageNumbers] = useState([]);
-    const [showContrib, setShowContrib] = useState(false);
 
     useEffect(() => {
         const x = [], runs = Math.ceil(proposals.length / 5);
@@ -34,6 +33,131 @@ const Proposals = () => {
         );
     };
 
+    const Projects = ({ el }) => {
+        const [showContrib, setShowContrib] = useState(false);
+
+        return (
+            <div key={ i } className={ fmtClasses(
+                styles.flex,
+                styles.widthMax,
+                proposal.container
+            ) }>
+                <h3 className={ fmtClasses(
+                    proposal.title
+                ) }>{ el.title }</h3>
+                <ul className={ fmtClasses(
+                    styles.flat,
+                    styles.widthMax,
+                ) }>
+                    <li className={ fmtClasses(
+                        styles.flat,
+                        styles.widthMax,
+                    ) }>
+                        { el.description }
+                    </li>
+                    <li className={ fmtClasses(
+                        styles.flat,
+                        styles.widthMax,
+                    ) }>
+                        <div className={ fmtClasses(
+                            proposal.infoContainer,
+                            styles.widthMax,
+                        ) }>
+                            <span className={ fmtClasses(
+                                proposal.owner,
+                            ) }> <strong>Owner:</strong> { el.owner }</span>
+                            <a className={ fmtClasses(
+                                proposal.readMe,
+                            ) } href={ el.link } target="_blank" rel="noreferrer">View Proposal Details</a>
+                        </div>
+                    </li>
+                </ul>
+
+                { !el.timedOut ?
+                    <div className={ fmtClasses(
+                        styles.flat,
+                        styles.gap15,
+                        styles.flex,
+                        styles.widthMax,
+                        styles.itemsCenter,
+                        proposal.interact,
+                    ) }>
+                        <div className={ fmtClasses(
+                            proposal.innerInteract,
+                            styles.flex,
+                            styles.widthFitContent,
+                            styles.itemsCenter,
+                            styles.directionY,
+                        ) } title='Contribute to this project'>
+                            <ImGift onClick={ () => {
+                                setShowContrib(!showContrib);
+                            } }
+                                className={ fmtClasses(
+                                    proposal.contribute,
+                                ) } />
+                            <span className={ fmtClasses(
+                                proposal.dInlineBlock
+                            ) }
+                            >{ el.contribs ?? 0 }</span>
+                        </div>
+
+                    </div>
+                    :
+                    el.didPass ?
+                        <div className={ fmtClasses(
+                            styles.flat,
+                            styles.flex,
+                            styles.widthMax,
+                            styles.itemsCenter
+                        ) }>
+                            <span className={ fmtClasses(
+                                proposal.dInlineBlock
+                            ) }
+                            >Project passed!</span>
+                            <button
+                                className={ fmtClasses(
+                                    styles.actionButton,
+                                ) }
+                                onClick={ () => {
+                                    connectAndClaimTokens(el.contract);
+                                } }
+                            >Claim Tokens</button>
+                        </div>
+                        :
+                        <div className={ fmtClasses(
+                            styles.flat,
+                            styles.flex,
+                            styles.widthMax,
+                            styles.itemsCenter
+                        ) }>
+                            <button
+                                className={ fmtClasses(
+                                    styles.actionButton,
+                                ) }
+                                onClick={ () => {
+                                    connectAndClaimRefund(el.contract);
+                                } }
+                            >Reclaim Funds</button>
+                        </div>
+                }
+
+                <div className={ fmtClasses(
+                    styles.flat,
+                    styles.gap15,
+                    styles.flex,
+                    styles.widthMax,
+                    styles.itemsCenter,
+                    styles.directionY,
+                    proposal.interact,
+                ) }>
+                    { showContrib &&
+                        <Contribute id={ el.id } infoStr={ el.contract } hide={ () => { setShowContrib(false); } } />
+                    }
+                </div>
+            </div>
+        );
+    };
+
 
     return (
         <div className={ fmtClasses(
@@ -44,128 +168,7 @@ const Proposals = () => {
             styles.gap15,
         ) }>
             {
-                sortArrayOfObjects(proposals, "id").filter(el => el.id > ((page - 1) * 5) && el.id <= ((page) * 5)).map((el, i) => {
-                    return (
-                        <div key={ i } className={ fmtClasses(
-                            styles.flex,
-                            styles.widthMax,
-                            proposal.container
-                        ) }>
-                            <h3 className={ fmtClasses(
-                                proposal.title
-                            ) }>{ el.title }</h3>
-                            <ul className={ fmtClasses(
-                                styles.flat,
-                                styles.widthMax,
-                            ) }>
-                                <li className={ fmtClasses(
-                                    styles.flat,
-                                    styles.widthMax,
-                                ) }>
-                                    { el.description }
-                                </li>
-                                <li className={ fmtClasses(
-                                    styles.flat,
-                                    styles.widthMax,
-                                ) }>
-                                    <div className={ fmtClasses(
-                                        proposal.infoContainer,
-                                        styles.widthMax,
-                                    ) }>
-                                        <span className={ fmtClasses(
-                                            proposal.owner,
-                                        ) }> <strong>Owner:</strong> { el.owner }</span>
-                                        <a className={ fmtClasses(
-                                            proposal.readMe,
-                                        ) } href={ el.link } target="_blank" rel="noreferrer">View Proposal Details</a>
-                                    </div>
-                                </li>
-                            </ul>
-
-                            { !el.timedOut ?
-                                <div className={ fmtClasses(
-                                    styles.flat,
-                                    styles.gap15,
-                                    styles.flex,
-                                    styles.widthMax,
-                                    styles.itemsCenter,
-                                    proposal.interact,
-                                ) }>
-                                    <div className={ fmtClasses(
-                                        proposal.innerInteract,
-                                        styles.flex,
-                                        styles.widthFitContent,
-                                        styles.itemsCenter,
-                                        styles.directionY,
-                                    ) } title='Contribute to this project'>
-                                        <ImGift onClick={ () => {
-                                            setShowContrib(true);
-                                        } }
-                                            className={ fmtClasses(
-                                                proposal.contribute,
-                                            ) } />
-                                        <span className={ fmtClasses(
-                                            proposal.dInlineBlock
-                                        ) }
-                                        >{ el.contribs ?? 0 }</span>
-                                    </div>
-
-                                </div>
-                                :
-                                el.didPass ?
-                                    <div className={ fmtClasses(
-                                        styles.flat,
-                                        styles.flex,
-                                        styles.widthMax,
-                                        styles.itemsCenter
-                                    ) }>
-                                        <span className={ fmtClasses(
-                                            proposal.dInlineBlock
-                                        ) }
-                                        >Project passed!</span>
-                                        <button
-                                            className={ fmtClasses(
-                                                styles.actionButton,
-                                            ) }
-                                            onClick={ () => {
-                                                connectAndClaimTokens(el.contract);
-                                            } }
-                                        >Claim Tokens</button>
-                                    </div>
-                                    :
-                                    <div className={ fmtClasses(
-                                        styles.flat,
-                                        styles.flex,
-                                        styles.widthMax,
-                                        styles.itemsCenter
-                                    ) }>
-                                        <button
-                                            className={ fmtClasses(
-                                                styles.actionButton,
-                                            ) }
-                                            onClick={ () => {
-                                                connectAndClaimRefund(el.contract);
-                                            } }
-                                        >Reclaim Funds</button>
-                                    </div>
-                            }
-
-                            <div className={ fmtClasses(
-                                styles.flat,
-                                styles.gap15,
-                                styles.flex,
-                                styles.widthMax,
-                                styles.itemsCenter,
-                                styles.directionY,
-                                proposal.interact,
-                            ) }>
-                                { showContrib &&
-                                    <Contribute id={ el.id } infoStr={ el.contract } hide={ () => { setShowContrib(false); } } />
-                                }
-                            </div>
-                        </div>
-                    );
-                })
+                proposals.map((el, i) => <Projects el={ el } key={ i } />)
             }
             <div className={ fmtClasses(
                 styles.flat,

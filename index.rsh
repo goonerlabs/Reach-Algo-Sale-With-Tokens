@@ -2,7 +2,7 @@
 
 const [isOutcome, PASSED, INPROGRESS] = makeEnum(2);
 
-const DEADLINE = 20;
+const DEADLINE = 2000;
 
 const state = Bytes(20);
 
@@ -31,7 +31,6 @@ export const main = Reach.App(() => {
       softCap: UInt,
       maxContribution: UInt,
       minContribution: UInt,
-      privateSaleAmt: UInt,
     }),
     isProject: Bool,
   });
@@ -112,7 +111,7 @@ export const main = Reach.App(() => {
     const [count, amtTotal, lastAddress, KeepGoing] =
       parallelReduce([0, 0, Deployer, true])
         .invariant(balance() == balance())
-        .while(lastConsensusTime() <= end && KeepGoing)
+        .while(KeepGoing)
         .api_(Contributors.contribute, (amt) => {
           check(amt > 0, "Contribution too small");
           const payment = amt;

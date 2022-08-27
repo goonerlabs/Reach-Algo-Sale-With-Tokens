@@ -254,7 +254,7 @@ const ReachContextProvider = ({ children }) => {
             };
             const projectToken = await reach.launchToken(user.account, proposal.tokenName, proposal.tokenSymbol);
             ctc.p.Deployer({
-                getProposal: {
+                getProject: {
                     ...proposal,
                     tokenid: projectToken.id,
                 },

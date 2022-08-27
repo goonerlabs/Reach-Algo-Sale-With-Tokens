@@ -227,7 +227,7 @@ const ReachContextProvider = ({ children }) => {
         const interact = {
             getProject: {
                 ...proposal,
-                tokenid: parseInt(testToken.id)
+                tokenid: testToken.id,
             },
             isProject: false,
         };
@@ -248,7 +248,7 @@ const ReachContextProvider = ({ children }) => {
             ctc.p.Deployer({
                 getProject: {
                     ...proposal,
-                    tokenid: parseInt(projectToken.id),
+                    tokenid: projectToken.id,
                 },
                 isProject: true,
             });

@@ -127,13 +127,30 @@ export const main = Reach.App(() => {
     notify(balance());
     if (contributorsSet.member(this)) {
       const fromMapAmt = (m) => fromMaybe(m, (() => 0), ((x) => x));
-      amtContributed[this] =fromMapAmt(amtContributed[this]) + amt;
+      amtContributed[this] = fromMapAmt(amtContributed[this]) + 0;
+      const actualAmt = 0;
+      return [count + 1, amtTotal + actualAmt, this, checkStatus(project.hardCap, amtTotal + amt) == INPROGRESS ? true : false]
     } else {
-      contributors[this] = this;
-    contributorsSet.insert(this);
-    amtContributed[this] = amt;
+      if (amt > project.maxContribution){
+        contributors[this] = this;
+        contributorsSet.insert(this);
+        amtContributed[this] = project.maxContribution;
+        const actualAmt = project.maxContribution;
+        return [count + 1, amtTotal + actualAmt, this, checkStatus(project.hardCap, amtTotal + amt) == INPROGRESS ? true : false]
+      } else if (amt < project.minContribution) {
+        contributors[this] = this;
+        contributorsSet.insert(this);
+        amtContributed[this] = project.minContribution;
+        const actualAmt = project.minContribution;
+        return [count + 1, amtTotal + actualAmt, this, checkStatus(project.hardCap, amtTotal + amt) == INPROGRESS ? true : false]
+      } else {
+        contributors[this] = this;
+        contributorsSet.insert(this);
+        amtContributed[this] = amt;
+        const actualAmt = amt;
+        return [count + 1, amtTotal + actualAmt, this, checkStatus(project.hardCap, amtTotal + amt) == INPROGRESS ? true : false]
+      }
     }
-    return [count + 1, amtTotal + amt, this, checkStatus(project.hardCap, amtTotal + amt) == INPROGRESS ? true : false]
     }]
   })
   .timeout(absoluteTime(end), () => {

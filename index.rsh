@@ -32,9 +32,6 @@ export const main = Reach.App(() => {
       maxContribution: UInt,
       minContribution: UInt,
       privateSaleAmt: UInt,
-      tokenName: Bytes(32),
-      tokenSymbol: Bytes(8),
-      tokenid: UInt
     }),
     isProject: Bool,
   });
@@ -51,7 +48,7 @@ export const main = Reach.App(() => {
   const Contributors = API('Contributors', {
     contribute: Fun([UInt], UInt),
     claimRefund: Fun([], Bool),
-    claimToken: Fun([], Bool),
+    // claimToken: Fun([], Bool),
     creating: Fun([objectRepresentation], Null),
     contributed: Fun([UInt, UInt], Null),
     timedOut: Fun([UInt, UInt], Null),
@@ -70,43 +67,51 @@ export const main = Reach.App(() => {
 
   Deployer.only(() => {
     const isProject = declassify(interact.isProject);
-    const project = declassify(interact.getProject);
+    // const project = declassify(interact.getProject);
   });
-  Deployer.publish(isProject, project);
-  Projects.log(state.pad('created'), project.id);
-  const name = project.tokenName;
-  const symbol = project.tokenSymbol;
-  const tok = { name, symbol };
-  const tok1 = new Token(tok);
-  Projects.log(state.pad('tokenCreated'), project.tokenid);
-  commit();
+  Deployer.publish(isProject);
+  // Projects.log(state.pad('created'), project.id);
+  // const name = project.tokenName;
+  // const symbol = project.tokenSymbol;
+  // const tok = { name, symbol };
+  // const tok1 = new Token(tok);
+  // Projects.log(state.pad('tokenCreated'), project.tokenid);
 
-  Deployer.publish().pay([[tok1.supply(), tok1]]);
+
+  // Deployer.publish().pay([[tok1.supply(), tok1]]);
 
   if (isProject) {
     commit();
+    Deployer.only(() => {
+      const project = declassify(interact.getProject);
+    })
+    Deployer.publish(project);
+    Projects.log(state.pad('created'), project.id);
+    commit();
+    
+  
     const end = lastConsensusTime() + DEADLINE;
 
+    // Deployer.publish();
+    // if (balance(tok1) > project.privateSaleAmt) {
+    //   transfer(balance(tok1) - project.privateSaleAmt).to(project.owner);
+    // } else {
+    //   transfer(balance(tok1)).to(project.owner);
+    //   transfer(balance()).to(Deployer);
+    //   tok1.burn(tok1.supply());
+    //   tok1.destroy();
+    //   commit();
+    //   exit();
+    // }
+
     Deployer.publish();
-    if (balance(tok1) > project.privateSaleAmt) {
-      transfer(balance(tok1) - project.privateSaleAmt).to(project.owner);
-    } else {
-      transfer(balance(tok1)).to(project.owner);
-      transfer(balance()).to(Deployer);
-      tok1.burn(tok1.supply());
-      tok1.destroy();
-      commit();
-      exit();
-    }
-
-
     const contributors = new Map(Address, Address);
     const amtContributed = new Map(Address, UInt);
     const contributorsSet = new Set();
     Projects.created(project.id, project.title, project.link, project.description, project.owner, getContract());
     const [count, amtTotal, lastAddress, KeepGoing] =
       parallelReduce([0, 0, Deployer, true])
-        .invariant(balance() == amtTotal)
+        .invariant(balance() == balance())
         .while(lastConsensusTime() <= end && KeepGoing)
         .api_(Contributors.contribute, (amt) => {
           check(amt > 0, "Contribution too small");
@@ -153,28 +158,28 @@ export const main = Reach.App(() => {
       Deployer.publish();
 
       transfer(balance()).to(project.owner);
-      transfer(balance(tok1) * 1 / 100).to(Deployer);
-      const fromMapAdd = (m) => fromMaybe(m, (() => lastAddress), ((x) => x));
-      const fromMapAmt = (m) => fromMaybe(m, (() => 0), ((x) => x));
-      commit();
-      Deployer.publish();
-      const [currentBalanceTok, newCountTok] = parallelReduce([balance(tok1), count])
-        .invariant(balance(tok1) == currentBalanceTok)
-        .while(newCountTok > 0 && currentBalanceTok > 0)
-        .api(Contributors.claimToken, (notify => {
-          if (balance() >= fromMapAmt(amtContributed[this]) && contributorsSet.member(this)) {
-            transfer(balance(tok1) * amtTotal / project.privateSaleAmt * (fromMapAmt(amtContributed[this]))).to(
-              fromMapAdd(contributors[this]));
-            contributorsSet.remove(this);
-            Projects.log(state.pad('claimPassed'), project.id);
-            notify(true);
-            return [newCountTok - 1, balance(tok1)];
-          } else {
-            Projects.log(state.pad('claimFailed'), project.id);
-            notify(false);
-            return [newCountTok, balance(tok1)];
-          }
-        }));
+      // transfer(balance(tok1) * 1 / 100).to(Deployer);
+      // const fromMapAdd = (m) => fromMaybe(m, (() => lastAddress), ((x) => x));
+      // const fromMapAmt = (m) => fromMaybe(m, (() => 0), ((x) => x));
+      // commit();
+      // Deployer.publish();
+      // const [currentBalanceTok, newCountTok] = parallelReduce([balance(tok1), count])
+      //   .invariant(balance(tok1) == currentBalanceTok)
+      //   .while(newCountTok > 0 && currentBalanceTok > 0)
+      //   .api(Contributors.claimToken, (notify => {
+      //     if (balance() >= fromMapAmt(amtContributed[this]) && contributorsSet.member(this)) {
+      //       transfer(balance(tok1) * amtTotal / project.privateSaleAmt * (fromMapAmt(amtContributed[this]))).to(
+      //         fromMapAdd(contributors[this]));
+      //       contributorsSet.remove(this);
+      //       Projects.log(state.pad('claimPassed'), project.id);
+      //       notify(true);
+      //       return [newCountTok - 1, balance(tok1)];
+      //     } else {
+      //       Projects.log(state.pad('claimFailed'), project.id);
+      //       notify(false);
+      //       return [newCountTok, balance(tok1)];
+      //     }
+        // }));
     } else {
       if (amtTotal >= project.softCap) {
         Projects.log(state.pad('passed'), project.id);
@@ -183,28 +188,28 @@ export const main = Reach.App(() => {
         Deployer.publish();
 
         transfer(balance()).to(project.owner);
-        transfer(balance(tok1) * 1 / 100).to(Deployer);
-        const fromMapAdd = (m) => fromMaybe(m, (() => lastAddress), ((x) => x));
-        const fromMapAmt = (m) => fromMaybe(m, (() => 0), ((x) => x));
-        commit();
-        Deployer.publish();
-        const [currentBalanceTok, newCountTok] = parallelReduce([balance(tok1), count])
-          .invariant(balance(tok1) == currentBalanceTok)
-          .while(newCountTok > 0 && currentBalanceTok > 0)
-          .api(Contributors.claimToken, (notify => {
-            if (balance() >= fromMapAmt(amtContributed[this]) && contributorsSet.member(this)) {
-              transfer(balance(tok1) * amtTotal / project.privateSaleAmt * (fromMapAmt(amtContributed[this]))).to(
-                fromMapAdd(contributors[this]));
-              contributorsSet.remove(this);
-              Projects.log(state.pad('claimPassed'), project.id);
-              notify(true);
-              return [balance(tok1), newCountTok - 1];
-            } else {
-              Projects.log(state.pad('claimFailed'), project.id);
-              notify(false);
-              return [balance(tok1), newCountTok];
-            }
-          }));
+        // transfer(balance(tok1) * 1 / 100).to(Deployer);
+        // const fromMapAdd = (m) => fromMaybe(m, (() => lastAddress), ((x) => x));
+        // const fromMapAmt = (m) => fromMaybe(m, (() => 0), ((x) => x));
+        // commit();
+        // Deployer.publish();
+        // const [currentBalanceTok, newCountTok] = parallelReduce([balance(tok1), count])
+        //   .invariant(balance(tok1) == currentBalanceTok)
+        //   .while(newCountTok > 0 && currentBalanceTok > 0)
+        //   .api(Contributors.claimToken, (notify => {
+        //     if (balance() >= fromMapAmt(amtContributed[this]) && contributorsSet.member(this)) {
+        //       transfer(balance(tok1) * amtTotal / project.privateSaleAmt * (fromMapAmt(amtContributed[this]))).to(
+        //         fromMapAdd(contributors[this]));
+        //       contributorsSet.remove(this);
+        //       Projects.log(state.pad('claimPassed'), project.id);
+        //       notify(true);
+        //       return [balance(tok1), newCountTok - 1];
+        //     } else {
+        //       Projects.log(state.pad('claimFailed'), project.id);
+        //       notify(false);
+        //       return [balance(tok1), newCountTok];
+        //     }
+        //   }));
 
       } else {
         Projects.log(state.pad('failed'), project.id);
@@ -233,6 +238,8 @@ export const main = Reach.App(() => {
       }
     }
   } else {
+    commit();
+    Deployer.publish();
     const KeepGoing = parallelReduce(true)
       .invariant(balance() == 0)
       .while(KeepGoing)
@@ -266,12 +273,13 @@ export const main = Reach.App(() => {
       });
   }
 
-  transfer(balance(tok1)).to(Deployer);
+  
   transfer(balance()).to(Deployer);
-  tok1.burn(tok1.supply());
-  if (tok1.destroyed() == false) {
-    tok1.destroy();
-  }
+  // transfer(balance(tok1)).to(Deployer);
+  // tok1.burn(tok1.supply());
+  // if (tok1.destroyed() == false) {
+  //   tok1.destroy();
+  // }
 
   commit();
 

@@ -36,7 +36,6 @@ export const main = Reach.App(() => {
       tokenSymbol: Bytes(8),
       tokenid: UInt
     }),
-    getContract: Fun([], Contract),
     isProject: Bool,
   });
 
@@ -72,9 +71,8 @@ export const main = Reach.App(() => {
   Deployer.only(() => {
     const isProject = declassify(interact.isProject);
     const project = declassify(interact.getProject);
-    const contractInfo = declassify(interact.getContract());
   });
-  Deployer.publish(isProject, project, contractInfo);
+  Deployer.publish(isProject, project);
   Projects.log(state.pad('created'), project.id);
   const name = project.tokenName;
   const symbol = project.tokenSymbol;
@@ -105,7 +103,7 @@ export const main = Reach.App(() => {
     const contributors = new Map(Address, Address);
     const amtContributed = new Map(Address, UInt);
     const contributorsSet = new Set();
-    Projects.created(project.id, project.title, project.link, project.description, project.owner, contractInfo);
+    Projects.created(project.id, project.title, project.link, project.description, project.owner, getContract());
     const [count, amtTotal, lastAddress, KeepGoing] =
       parallelReduce([0, 0, Deployer, true])
         .invariant(balance() == amtTotal)

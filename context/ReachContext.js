@@ -222,7 +222,7 @@ const ReachContextProvider = ({ children }) => {
             softCap: 10000,
             tokenName: 'Gooner',
             tokenSymbol: 'GLabs',
-            makeContribution: 10000,
+            maxContribution: 10000,
             minContribution: 1000,
             privateSaleAmt: 100,
         };

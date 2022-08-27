@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { ImGift } from "react-icons/im";
-import { BiUpvote, BiDownvote } from "react-icons/bi";
 import { useReach, fmtClasses } from "../../hooks";
 import styles from "../../styles/Shared.module.css";
 import Contribute from "./Contribute";
 import proposal from "../../styles/Proposals.module.css";
 
 const Proposals = () => {
-    const { setContract, connectAndUpvote, connectAndDownvote, connectAndClaimRefund, proposals, sortArrayOfObjects, setViews } = useReach();
+    const { setContract, connectAndClaimRefund, proposals,  connectAndClaimTokens, sortArrayOfObjects, setViews } = useReach();
     const [page, setPage] = useState(1);
     const [pageNumbers, setPageNumbers] = useState([]);
     const [showContrib, setShowContrib] = useState(false);
@@ -92,29 +91,13 @@ const Proposals = () => {
                                     styles.itemsCenter,
                                     proposal.interact,
                                 ) }>
-                                    <div onClick={ async () => {
-                                        connectAndUpvote(el.id, el.contract);
-                                    } } className={ fmtClasses(
-                                        proposal.innerInteract,
-                                        styles.flex,
-                                        styles.widthFitContent,
-                                        styles.itemsCenter,
-                                    ) } title='Upvote this proposal'>
-                                        <BiUpvote
-                                            className={ fmtClasses(
-                                                proposal.upvote,
-                                            ) } /><span className={ fmtClasses(
-                                                proposal.dInlineBlock
-                                            ) }
-                                            >{ el.upvotes ?? 0 }</span>
-                                    </div>
                                     <div className={ fmtClasses(
                                         proposal.innerInteract,
                                         styles.flex,
                                         styles.widthFitContent,
                                         styles.itemsCenter,
                                         styles.directionY,
-                                    ) } title='Contribute to this proposal'>
+                                    ) } title='Contribute to this project'>
                                         <ImGift onClick={ () => {
                                             setShowContrib(true);
                                         } }
@@ -126,22 +109,7 @@ const Proposals = () => {
                                         ) }
                                         >{ el.contribs ?? 0 }</span>
                                     </div>
-                                    <div onClick={ async () => {
-                                        connectAndDownvote(el.id, el.contract);
-                                    } } className={ fmtClasses(
-                                        proposal.innerInteract,
-                                        styles.flex,
-                                        styles.widthFitContent,
-                                        styles.itemsCenter,
-                                    ) } title='Downvote this proposal'>
-                                        <BiDownvote
-                                            className={ fmtClasses(
-                                                proposal.downvote,
-                                            ) } /><span className={ fmtClasses(
-                                                proposal.dInlineBlock
-                                            ) }
-                                            >{ el.downvotes ?? 0 }</span>
-                                    </div>
+
                                 </div>
                                 :
                                 el.didPass ?
@@ -155,6 +123,14 @@ const Proposals = () => {
                                             proposal.dInlineBlock
                                         ) }
                                         >Project passed!</span>
+                                        <button
+                                            className={ fmtClasses(
+                                                styles.actionButton,
+                                            ) }
+                                            onClick={ () => {
+                                                connectAndClaimTokens(el.contract);
+                                            } }
+                                        >Claim Tokens</button>
                                     </div>
                                     :
                                     <div className={ fmtClasses(

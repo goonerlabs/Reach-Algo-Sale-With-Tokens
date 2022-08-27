@@ -217,7 +217,7 @@ const ReachContextProvider = ({ children }) => {
             title: 'AroTable',
             link: 'https://github.com/Aro1914/AroTable/blob/main/README.md',
             description: `A self-sorting number data structure`,
-            owner: user.account,
+            owner: user.account.networkAccount.addr,
             hardCap: 10000,
             softCap: 10000,
             tokenName: 'Gooner',

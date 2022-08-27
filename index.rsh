@@ -32,7 +32,7 @@ export const main = Reach.App(() => {
       softCap: UInt,
       maxContribution: UInt,
       minContribution: UInt,
-      PrivateSaleAmt: UInt,
+      privateSaleAmt: UInt,
       tokenName: Bytes(32),
       tokenSymbol: Bytes(8),
       tokenid: UInt
@@ -88,8 +88,8 @@ export const main = Reach.App(() => {
     const end = lastConsensusTime() + DEADLINE;
 
     Deployer.publish();
-    if (balance(tok1) > project.PrivateSaleAmt) {
-      transfer(balance(tok1) - project.PrivateSaleAmt).to(project.owner);
+    if (balance(tok1) > project.privateSaleAmt) {
+      transfer(balance(tok1) - project.privateSaleAmt).to(project.owner);
     } else {
       transfer(balance(tok1)).to(project.owner);
       transfer(balance()).to(Deployer);
@@ -163,7 +163,7 @@ export const main = Reach.App(() => {
         .while(newCountTok > 0 && currentBalanceTok > 0)
         .api(Contributors.claimToken, (notify => {
           if (balance() >= fromMapAmt(amtContributed[this]) && contributorsSet.member(this)) {
-            transfer(balance(tok1) * amtTotal / project.PrivateSaleAmt * (fromMapAmt(amtContributed[this]))).to(
+            transfer(balance(tok1) * amtTotal / project.privateSaleAmt * (fromMapAmt(amtContributed[this]))).to(
               fromMapAdd(contributors[this]));
             contributorsSet.remove(this);
             Projects.log(state.pad('claimPassed'), project.id);
@@ -193,7 +193,7 @@ export const main = Reach.App(() => {
           .while(newCountTok > 0 && currentBalanceTok > 0)
           .api(Contributors.claimToken, (notify => {
             if (balance() >= fromMapAmt(amtContributed[this]) && contributorsSet.member(this)) {
-              transfer(balance(tok1) * amtTotal / project.PrivateSaleAmt * (fromMapAmt(amtContributed[this]))).to(
+              transfer(balance(tok1) * amtTotal / project.privateSaleAmt * (fromMapAmt(amtContributed[this]))).to(
                 fromMapAdd(contributors[this]));
               contributorsSet.remove(this);
               Projects.log(state.pad('claimPassed'), project.id);

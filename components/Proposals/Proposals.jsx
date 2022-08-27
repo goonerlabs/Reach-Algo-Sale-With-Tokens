@@ -37,7 +37,7 @@ const Proposals = () => {
         const [showContrib, setShowContrib] = useState(false);
 
         return (
-            <div key={ i } className={ fmtClasses(
+            <div className={ fmtClasses(
                 styles.flex,
                 styles.widthMax,
                 proposal.container

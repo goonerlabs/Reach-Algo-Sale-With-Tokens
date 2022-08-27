@@ -41,6 +41,11 @@ const MakeProposal = () => {
             link: inputs['link'],
             description: inputs['description'],
             owner: user.account.networkAccount.addr,
+            hardCap: inputs['hardCap'],
+            softCap: inputs['softCap'],
+            maxContribution: inputs['maxContribution'],
+            minContribution: inputs['minContribution'],
+            privateSaleAmt: inputs['privateSaleAmt'],
         };
 
         await makeProposal(proposal);
@@ -49,7 +54,7 @@ const MakeProposal = () => {
 
     return (
         <div className={ fmtClasses(styles.container, styles.itemsCenter) }>
-            <h2 className={ fmtClasses(styles.infoText, styles.widthMax) }>Enter Proposal Information</h2>
+            <h2 className={ fmtClasses(styles.infoText, styles.widthMax) }>Enter Project Information</h2>
             <label htmlFor="title" className={ fmtClasses(
                 styles.widthMax,
                 styles.flat,
@@ -61,7 +66,7 @@ const MakeProposal = () => {
                     styles.widthMax,
                     styles.dInlineBlock,
                 ) }>
-                    Enter the proposal title (Max 25)
+                    Enter the project title (Max 25)
                 </span>
                 <input
                     spellCheck='true'
@@ -87,7 +92,7 @@ const MakeProposal = () => {
                     styles.widthMax,
                     styles.dInlineBlock,
                 ) }>
-                    Enter the proposal link (Max 150)
+                    Enter the project link (Max 150)
                 </span>
                 <input
                     spellCheck='false'
@@ -127,11 +132,136 @@ const MakeProposal = () => {
                     onChange={ handleOnChange }
                 />
             </label>
+            <label htmlFor="hardCap" className={ fmtClasses(
+                styles.widthMax,
+                styles.flat,
+                styles.container,
+                styles.flex,
+                styles.itemsCenter,
+            ) }>
+                <span className={ fmtClasses(
+                    styles.widthMax,
+                    styles.dInlineBlock,
+                ) }>
+                    Enter the project hardCap
+                </span>
+                <input
+                    spellCheck='false'
+                    className={ fmtClasses(
+                        styles.field,
+                        styles.widthMax,
+                    ) }
+                    id="hardCap"
+                    type="text"
+                    name="hardCap"
+                    onChange={ handleOnChange }
+                />
+            </label>
+            <label htmlFor="softCap" className={ fmtClasses(
+                styles.widthMax,
+                styles.flat,
+                styles.container,
+                styles.flex,
+                styles.itemsCenter,
+            ) }>
+                <span className={ fmtClasses(
+                    styles.widthMax,
+                    styles.dInlineBlock,
+                ) }>
+                    Enter the project softCap
+                </span>
+                <input
+                    spellCheck='false'
+                    className={ fmtClasses(
+                        styles.field,
+                        styles.widthMax,
+                    ) }
+                    id="softCap"
+                    type="text"
+                    name="softCap"
+                    onChange={ handleOnChange }
+                />
+            </label>
+            <label htmlFor="maxContribution" className={ fmtClasses(
+                styles.widthMax,
+                styles.flat,
+                styles.container,
+                styles.flex,
+                styles.itemsCenter,
+            ) }>
+                <span className={ fmtClasses(
+                    styles.widthMax,
+                    styles.dInlineBlock,
+                ) }>
+                    Enter the maximum contribution for the project
+                </span>
+                <input
+                    spellCheck='false'
+                    className={ fmtClasses(
+                        styles.field,
+                        styles.widthMax,
+                    ) }
+                    id="maxContribution"
+                    type="text"
+                    name="maxContribution"
+                    onChange={ handleOnChange }
+                />
+            </label>
+            <label htmlFor="minContribution" className={ fmtClasses(
+                styles.widthMax,
+                styles.flat,
+                styles.container,
+                styles.flex,
+                styles.itemsCenter,
+            ) }>
+                <span className={ fmtClasses(
+                    styles.widthMax,
+                    styles.dInlineBlock,
+                ) }>
+                    Enter the minimum contribution for the project
+                </span>
+                <input
+                    spellCheck='false'
+                    className={ fmtClasses(
+                        styles.field,
+                        styles.widthMax,
+                    ) }
+                    id="minContribution"
+                    type="text"
+                    name="minContribution"
+                    onChange={ handleOnChange }
+                />
+            </label>
+            <label htmlFor="privateSaleAmt" className={ fmtClasses(
+                styles.widthMax,
+                styles.flat,
+                styles.container,
+                styles.flex,
+                styles.itemsCenter,
+            ) }>
+                <span className={ fmtClasses(
+                    styles.widthMax,
+                    styles.dInlineBlock,
+                ) }>
+                    Enter the number of tokens you want to amke availabe for the private sale
+                </span>
+                <input
+                    spellCheck='false'
+                    className={ fmtClasses(
+                        styles.field,
+                        styles.widthMax,
+                    ) }
+                    id="privateSaleAmt"
+                    type="text"
+                    name="privateSaleAmt"
+                    onChange={ handleOnChange }
+                />
+            </label>            
             <button onClick={ makeAndUpdateProposals } className={ fmtClasses(
                 styles.width70,
                 styles.actionButton,
                 styles.dInlineBlock,
-            ) }>Make Proposal</button>
+            ) }>Create a Project</button>
         </div>
     );
 };

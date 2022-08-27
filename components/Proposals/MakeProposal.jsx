@@ -152,7 +152,7 @@ const MakeProposal = () => {
                         styles.widthMax,
                     ) }
                     id="hardCap"
-                    type="text"
+                    type="number"
                     name="hardCap"
                     onChange={ handleOnChange }
                 />
@@ -177,7 +177,7 @@ const MakeProposal = () => {
                         styles.widthMax,
                     ) }
                     id="softCap"
-                    type="text"
+                    type="number"
                     name="softCap"
                     onChange={ handleOnChange }
                 />
@@ -202,7 +202,7 @@ const MakeProposal = () => {
                         styles.widthMax,
                     ) }
                     id="maxContribution"
-                    type="text"
+                    type="number"
                     name="maxContribution"
                     onChange={ handleOnChange }
                 />
@@ -227,7 +227,7 @@ const MakeProposal = () => {
                         styles.widthMax,
                     ) }
                     id="minContribution"
-                    type="text"
+                    type="number"
                     name="minContribution"
                     onChange={ handleOnChange }
                 />
@@ -252,7 +252,7 @@ const MakeProposal = () => {
                         styles.widthMax,
                     ) }
                     id="privateSaleAmt"
-                    type="text"
+                    type="number"
                     name="privateSaleAmt"
                     onChange={ handleOnChange }
                 />

@@ -141,9 +141,9 @@ const ReachContextProvider = ({ children }) => {
             link: noneNull(what[2]),
             description: noneNull(what[3]),
             owner: noneNull(what[4]),
-            contractInfo: noneNull(what[5]),
+            contractInfo: what[5],
         });
-        console.log(noneNull(what[5]));
+        console.log(what[5]);
     };
 
     const createProposal = ({ when, what }) => {
@@ -153,7 +153,7 @@ const ReachContextProvider = ({ children }) => {
             link: noneNull(what[2]),
             description: noneNull(what[3]),
             owner: noneNull(what[4]),
-            contract: noneNull(what[5]),
+            contract: JSON.stringify(what[5]),
             contribs: 0,
             timedOut: false,
             didPass: false,

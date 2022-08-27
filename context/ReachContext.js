@@ -142,7 +142,7 @@ const ReachContextProvider = ({ children }) => {
             link: noneNull(what[2]),
             description: noneNull(what[3]),
             owner: noneNull(what[4]),
-            contractInfo: noneNull(what[5])
+            contractInfo: noneNull(what[5]),
         });
         console.log(noneNull(what[5]));
     };
@@ -209,9 +209,6 @@ const ReachContextProvider = ({ children }) => {
         const ctc = user.account.contract(backend);
         setContractInstance(ctc);
         console.log('Got here');
-        const getContract = () => {
-            return contract?.ctcInfoStr;
-        };
         const proposal = {
             id: 1,
             title: 'AroTable',
@@ -232,7 +229,6 @@ const ReachContextProvider = ({ children }) => {
                 ...proposal,
                 tokenid: parseInt(testToken.id)
             },
-            getContract,
             isProject: false,
         };
         ctc.p.Deployer(interact);
@@ -248,10 +244,6 @@ const ReachContextProvider = ({ children }) => {
         const proposalSetup = async () => {
             // TODO implement the interact functionality
             const ctc = user.account.contract(backend);
-            let ctcInfo = '';
-            const getContract = () => {
-                return ctcInfo;
-            };
             const projectToken = await reach.launchToken(user.account, proposal.tokenName, proposal.tokenSymbol);
             ctc.p.Deployer({
                 getProject: {
@@ -259,16 +251,13 @@ const ReachContextProvider = ({ children }) => {
                     tokenid: parseInt(projectToken.id),
                 },
                 isProject: true,
-                getContract,
             });
             ctcInfo = JSON.stringify(await ctc.getInfo(), null, 2);
             console.log(ctcInfo);
             ctc.events.log.monitor(timeoutProposal);
             ctc.events.created.monitor(updateProposals);
-            return ctcInfo;
         };
-        const contract = await proposalSetup();
-        return contract;
+        await proposalSetup();
     };
 
     const ReachContextValues = {

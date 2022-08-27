@@ -45,8 +45,8 @@ const MakeProposal = () => {
             softCap: inputs['softCap'],
             maxContribution: inputs['maxContribution'],
             minContribution: inputs['minContribution'],
-            tokenName: inputs['tokenName'],
-            tokenSymbol: inputs['tokenSymbol'],
+            // tokenName: inputs['tokenName'],
+            // tokenSymbol: inputs['tokenSymbol'],
             privateSaleAmt: inputs['privateSaleAmt'],
         };
 
@@ -234,7 +234,7 @@ const MakeProposal = () => {
                     onChange={ handleOnChange }
                 />
             </label>
-            <h2 className={ fmtClasses(styles.infoText, styles.widthMax) }>Enter Token Information</h2>
+            {/* <h2 className={ fmtClasses(styles.infoText, styles.widthMax) }>Enter Token Information</h2>
             <label htmlFor="tokenName" className={ fmtClasses(
                 styles.widthMax,
                 styles.flat,
@@ -284,7 +284,7 @@ const MakeProposal = () => {
                     name="tokenSymbol"
                     onChange={ handleOnChange }
                 />
-            </label> 
+            </label>  */}
             <label htmlFor="privateSaleAmt" className={ fmtClasses(
                 styles.widthMax,
                 styles.flat,
@@ -309,12 +309,23 @@ const MakeProposal = () => {
                     name="privateSaleAmt"
                     onChange={ handleOnChange }
                 />
-            </label>            
+            </label>
             <button onClick={ makeAndUpdateProposals } className={ fmtClasses(
                 styles.width70,
                 styles.actionButton,
                 styles.dInlineBlock,
-            ) }>Create a Project</button>
+            ) }
+                disabled={
+                    !inputs?.['title'] ||
+                    !inputs?.['link'] ||
+                    !inputs?.['description'] ||
+                    !inputs?.['hardCap'] ||
+                    !inputs?.['softCap'] ||
+                    !inputs?.['maxContribution'] ||
+                    !inputs?.['minContribution'] ||
+                    !inputs?.['privateSaleAmt']
+                }
+            >Create a Project</button>
         </div>
     );
 };

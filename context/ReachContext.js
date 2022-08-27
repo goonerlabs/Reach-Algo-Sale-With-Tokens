@@ -134,7 +134,6 @@ const ReachContextProvider = ({ children }) => {
         setViews({ views: 'Confirmed', wrapper: 'ProposalWrapper' });
     };
 
-    // TODO create a function to add to the Map of proposals stored in our contract;
     const updateProposals = async ({ when, what }) => {
         await contractInstance.apis.Contributors.creating({
             id: parseInt(what[0]),
@@ -166,21 +165,33 @@ const ReachContextProvider = ({ children }) => {
         const ifState = x => x.padEnd(20, '\u0000');
         switch (what[0]) {
             case ifState('contributed'):
-                const cProposal = proposals.filter(el => Number(el.id) === Number(parseInt(what[1])))[0];
-                cProposal.contribs = reach.formatCurrency(parseInt(what[2]), 4);
-                setProposals([...proposals.filter(el => Number(el.id) !== Number(parseInt(what[1]))), cProposal]);
+                const conProposals = proposals.map(el => {
+                    if (Number(el.id) === Number(parseInt(what[1]))) {
+                        el['contribs'] = reach.formatCurrency(what[2], 4);
+                    }
+                    return el;
+                });
+                setProposals(proposals => ([...conProposals]));
                 break;
             case ifState('timedOut'):
                 if (parseInt(what[2])) {
-                    const passedProposal = proposals.filter(el => Number(el.id) === Number(parseInt(what[1])))[0];
-                    passedProposal['timedOut'] = true;
-                    passedProposal['didPass'] = true;
-                    setProposals([...proposals.filter(el => Number(el.id) !== Number(parseInt(what[1]))), passedProposal]);
+                    const pProposals = proposals.map(el => {
+                        if (Number(el.id) === Number(parseInt(what[1]))) {
+                            el['timedOut'] = true;
+                            el['didPass'] = true;
+                        }
+                        return el;
+                    });
+                    setProposals(proposals => ([...pProposals]));
                 } else {
-                    const failedProposal = proposals.filter(el => Number(el.id) === Number(parseInt(what[1])))[0];
-                    failedProposal['timedOut'] = true;
-                    failedProposal['didPass'] = false;
-                    setProposals([...proposals.filter(el => Number(el.id) !== Number(parseInt(what[1]))), failedProposal]);
+                    const fProposals = proposals.map(el => {
+                        if (Number(el.id) === Number(parseInt(what[1]))) {
+                            el['timedOut'] = true;
+                            el['didPass'] = false;
+                        }
+                        return el;
+                    });
+                    setProposals(proposals => ([...fProposals]));
                 }
                 break;
             default:
@@ -217,17 +228,17 @@ const ReachContextProvider = ({ children }) => {
             owner: user.account.networkAccount.addr,
             hardCap: 10000,
             softCap: 10000,
-            tokenName: 'Gooner',
-            tokenSymbol: 'GLabs',
+            // tokenName: 'Gooner',
+            // tokenSymbol: 'GLabs',
             maxContribution: 10000,
             minContribution: 1000,
             privateSaleAmt: 100,
         };
-        const testToken = await reach.launchToken(user.account, proposal.tokenName, proposal.tokenSymbol);
+        // const testToken = await reach.launchToken(user.account, proposal.tokenName, proposal.tokenSymbol);
         const interact = {
             getProject: {
                 ...proposal,
-                tokenid: testToken.id,
+                // tokenid: testToken.id,
             },
             isProject: false,
         };
@@ -244,11 +255,11 @@ const ReachContextProvider = ({ children }) => {
         const proposalSetup = async () => {
             // TODO implement the interact functionality
             const ctc = user.account.contract(backend);
-            const projectToken = await reach.launchToken(user.account, proposal.tokenName, proposal.tokenSymbol);
+            // const projectToken = await reach.launchToken(user.account, proposal.tokenName, proposal.tokenSymbol);
             ctc.p.Deployer({
                 getProject: {
                     ...proposal,
-                    tokenid: projectToken.id,
+                    // tokenid: projectToken.id,
                 },
                 isProject: true,
             });
@@ -305,12 +316,12 @@ const ReachContextProvider = ({ children }) => {
         <ReachContext.Provider value={ ReachContextValues }>
             <div className={ fmtClasses(styles.header, !contract?.ctcInfoStr ? styles.itemsCenter : '') }>
                 <div className={ fmtClasses(styles.brandContainer) }>
-                    <h1>ALGO Sale</h1>
+                    <h1>Reach DAO</h1>
                 </div>
                 <div className={ fmtClasses(styles.navContainer) }>
                     { contract?.ctcInfoStr &&
                         <ul className={ fmtClasses(styles.navList, styles.flat) }>
-                            <li className={ fmtClasses(views.view === 'Proposals' ? styles.navItemActive : styles.navItem) } onClick={ () => setViews({ view: 'Proposals', wrapper: 'ProposalWrapper' }) }>Projects</li>
+                            <li className={ fmtClasses(views.view === 'Proposals' ? styles.navItemActive : styles.navItem) } onClick={ () => setViews({ view: 'Proposals', wrapper: 'ProposalWrapper' }) }>Proposals</li>
                         </ul> }
                 </div>
             </div>

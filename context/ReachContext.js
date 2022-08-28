@@ -167,6 +167,7 @@ const ReachContextProvider = ({ children }) => {
         const ifState = x => x.padEnd(20, '\u0000');
         switch (what[0]) {
             case ifState('contributed'):
+                const tempProposals = proposals;
                 alert(`You just contributed`);
                 // const conProposals = proposals.map(el => {
                 //     if (Number(el.id) === Number(parseInt(what[1]))) {
@@ -174,7 +175,7 @@ const ReachContextProvider = ({ children }) => {
                 //     }
                 //     return el;
                 // });
-                // setProposals(proposals => ([...conProposals]));
+                setProposals(proposals => ([...tempProposals]));
                 break;
             case ifState('timedOut'):
                 if (parseInt(what[2])) {

@@ -149,7 +149,8 @@ const ReachContextProvider = ({ children }) => {
     };
 
     const createProposal = ({ when, what }) => {
-        setProposals([...proposals, {
+        const presentProposals = proposals;
+        presentProposals.push({
             id: parseInt(what[0]),
             title: noneNull(what[1]),
             link: noneNull(what[2]),
@@ -159,7 +160,8 @@ const ReachContextProvider = ({ children }) => {
             contribs: 0,
             timedOut: false,
             didPass: false,
-        }]);
+        })
+        setProposals(proposals => ([...presentProposals]));
         console.log(noneNull(what[5]));
     };
 

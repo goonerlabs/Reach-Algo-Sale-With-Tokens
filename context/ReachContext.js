@@ -97,6 +97,8 @@ const ReachContextProvider = ({ children }) => {
         try {
             setViews({ view: "Attaching", wrapper: "AttacherWrapper" });
             const ctc = user.account.contract(backend, JSON.parse(ctcInfoStr));
+            ctc.events.create.monitor(createProposal);
+            ctc.events.that.monitor(acknowledge);
             setContractInstance(ctc);
             setContract({ ctcInfoStr });
             setViews({ view: "Proposals", wrapper: "ProposalWrapper" });

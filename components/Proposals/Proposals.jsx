@@ -181,7 +181,7 @@ const Proposals = () => {
                     styles.width70,
                     styles.actionButton,
                     styles.dInlineBlock,
-                ) }>Make Proposal</button>
+                ) }>Create a Project</button>
             </div>
             <div className={ fmtClasses(
                 styles.flat,

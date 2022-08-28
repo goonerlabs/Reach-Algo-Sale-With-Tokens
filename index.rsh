@@ -7,7 +7,7 @@ const DEADLINE = 200;
 const state = Bytes(20);
 
 const checkStatus = (hardCap, totalAmt) => {
-  const result = totalAmt >= hardCap ? PASSED : INPROGRESS;
+  const result = totalAmt < hardCap ? INPROGRESS: PASSED;
   return result;
 };
 
@@ -109,10 +109,10 @@ export const main = Reach.App(() => {
     Projects.created(project.id, project.title, project.link, project.description, project.owner, getContract());
 
     const [timeRemaining, keepGoing] = makeDeadline(DEADLINE);
-    const [count, amtTotal, lastAddress, dontStop] =
-      parallelReduce([0, 0, Deployer, true])
+    const [amtTotal, lastAddress, stop] =
+      parallelReduce([0, Deployer, false])
         .invariant(balance() == balance())
-        .while(keepGoing() && dontStop)
+        .while(keepGoing() && stop !== true)
         .api_(Contributors.contribute, (amt) => {
           check(amt > 0, "Contribution too small");
           const payment = amt;
@@ -120,35 +120,35 @@ export const main = Reach.App(() => {
             notify(balance());
             if (contributorsSet.member(this)) {
               const fromMapAmt = (m) => fromMaybe(m, (() => 0), ((x) => x));
-              amtContributed[this] = fromMapAmt(amtContributed[this]) + 0;
+              amtContributed[this] = fromMapAmt(amtContributed[this]);
               const actualAmt = 0;
-              return [count + 1, amtTotal + actualAmt, this, checkStatus(project.hardCap, amtTotal + amt) == INPROGRESS ? true : false];
+              return [amtTotal + actualAmt, this, checkStatus(project.hardCap, amtTotal + actualAmt) == INPROGRESS ? false : true];
             } else {
               if (amt > project.maxContribution) {
                 contributors[this] = this;
                 contributorsSet.insert(this);
                 amtContributed[this] = project.maxContribution;
                 const actualAmt = project.maxContribution;
-                return [count + 1, amtTotal + actualAmt, this, checkStatus(project.hardCap, amtTotal + amt) == INPROGRESS ? true : false];
+                return [amtTotal + actualAmt, this, checkStatus(project.hardCap, amtTotal + actualAmt) == INPROGRESS ? false : true];
               } else if (amt < project.minContribution) {
                 contributors[this] = this;
                 contributorsSet.insert(this);
                 amtContributed[this] = project.minContribution;
                 const actualAmt = project.minContribution;
-                return [count + 1, amtTotal + actualAmt, this, checkStatus(project.hardCap, amtTotal + amt) == INPROGRESS ? true : false];
+                return [amtTotal + actualAmt, this, checkStatus(project.hardCap, amtTotal + actualAmt) == INPROGRESS ? false : true];
               } else {
                 contributors[this] = this;
                 contributorsSet.insert(this);
                 amtContributed[this] = amt;
                 const actualAmt = amt;
-                return [count + 1, amtTotal + actualAmt, this, checkStatus(project.hardCap, amtTotal + amt) == INPROGRESS ? true : false];
+                return [amtTotal + actualAmt, this, checkStatus(project.hardCap, amtTotal + actualAmt) == INPROGRESS ? false : true];
               }
             }
           }];
         })
         .timeout(timeRemaining(), () => {
           Deployer.publish();
-          return [count, amtTotal, lastAddress, dontStop];
+          return [amtTotal, lastAddress, stop];
         });
 
     if (checkStatus(project.hardCap, amtTotal) == PASSED) {
@@ -218,9 +218,9 @@ export const main = Reach.App(() => {
         const fromMapAmt = (m) => fromMaybe(m, (() => 0), ((x) => x));
         commit();
         Deployer.publish();
-        const [newCount, currentBalance] = parallelReduce([count, balance()])
-          .invariant(balance() == currentBalance)
-          .while(newCount > 0 && currentBalance > 0)
+        const currentBalance = parallelReduce(balance())
+          .invariant(balance() == balance())
+          .while(currentBalance > 0)
           .api(Contributors.claimRefund, (notify => {
             if (balance() >= fromMapAmt(amtContributed[this]) && contributorsSet.member(this)) {
               transfer(fromMapAmt(amtContributed[this])).to(
@@ -228,11 +228,11 @@ export const main = Reach.App(() => {
               contributorsSet.remove(this);
               Projects.log(state.pad('refundPassed'), project.id);
               notify(true);
-              return [newCount - 1, balance()];
+              return balance() - fromMapAmt(amtContributed[this]);
             } else {
               Projects.log(state.pad('refundFailed'), project.id);
               notify(false);
-              return [newCount, balance()];
+              return currentBalance;
             }
           }));
       }

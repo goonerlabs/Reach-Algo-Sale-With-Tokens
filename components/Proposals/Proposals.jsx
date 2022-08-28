@@ -82,16 +82,16 @@ const Proposals = () => {
                         styles.itemsCenter,
                         proposal.interact,
                     ) }>
-                        <div className={ fmtClasses(
+                        <div onClick={ () => {
+                            setShowContrib(!showContrib);
+                        } } className={ fmtClasses(
                             proposal.innerInteract,
                             styles.flex,
                             styles.widthFitContent,
                             styles.itemsCenter,
                             styles.directionY,
                         ) } title='Contribute to this project'>
-                            <ImGift onClick={ () => {
-                                setShowContrib(!showContrib);
-                            } }
+                            <ImGift
                                 className={ fmtClasses(
                                     proposal.contribute,
                                 ) } />
@@ -114,14 +114,14 @@ const Proposals = () => {
                                 proposal.dInlineBlock
                             ) }
                             >Project passed!</span>
-                            <button
+                            {/* <button
                                 className={ fmtClasses(
                                     styles.actionButton,
                                 ) }
                                 onClick={ () => {
                                     connectAndClaimTokens(el.contract);
                                 } }
-                            >Claim Tokens</button>
+                            >Claim Tokens</button> */}
                         </div>
                         :
                         <div className={ fmtClasses(

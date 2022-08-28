@@ -160,7 +160,7 @@ const ReachContextProvider = ({ children }) => {
             contribs: 0,
             timedOut: false,
             didPass: false,
-        })
+        });
         setProposals(proposals => ([...presentProposals]));
         console.log(noneNull(what[5]));
     };
@@ -168,17 +168,15 @@ const ReachContextProvider = ({ children }) => {
     const acknowledge = ({ when, what }) => {
         const ifState = x => x.padEnd(20, '\u0000');
         switch (what[0]) {
-            // case ifState('contributed'):
-            //     const tempProposals = proposals;
-            //     alert(`You just contributed`);
-            //     // const conProposals = proposals.map(el => {
-            //     //     if (Number(el.id) === Number(parseInt(what[1]))) {
-            //     //         el['contribs'] = reach.formatCurrency(what[2], 4);
-            //     //     }
-            //     //     return el;
-            //     // });
-            //     setProposals(proposals => ([...tempProposals]));
-            //     break;
+            case ifState('contributed'):
+                const conProposals = proposals.map(el => {
+                    if (Number(el.id) === Number(parseInt(what[1]))) {
+                        el['contribs'] = reach.formatCurrency(what[2], 4);
+                    }
+                    return el;
+                });
+                setProposals(proposals => ([...conProposals]));
+                break;
             case ifState('timedOut'):
                 if (parseInt(what[2])) {
                     const pProposals = proposals.map(el => {

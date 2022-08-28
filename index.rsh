@@ -85,7 +85,6 @@ export const main = Reach.App(() => {
       const project = declassify(interact.getProject);
     })
     Deployer.publish(project);
-    Projects.log(state.pad('created'), project.id);
     commit();
     
   

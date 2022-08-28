@@ -110,7 +110,7 @@ const ReachContextProvider = ({ children }) => {
         try {
             const ctc = user.account.contract(backend, JSON.parse(ctcInfoStr));
             const contribs = await ctc.apis.Contributors.contribute(reach.parseCurrency(amount));
-            await ctc.apis.Contributors.contributed(id, parseInt(contribs));
+            await contractInstance.apis.Contributors.contributed(id, parseInt(contribs));
         } catch (error) {
             console.log({ error });
         }

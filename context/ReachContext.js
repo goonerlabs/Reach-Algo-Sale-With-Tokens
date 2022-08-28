@@ -131,7 +131,6 @@ const ReachContextProvider = ({ children }) => {
             console.log({ error });
         }
     };
-
     const confirmContribution = async () => {
         setViews({ views: 'Confirmed', wrapper: 'ProposalWrapper' });
     };
@@ -214,7 +213,7 @@ const ReachContextProvider = ({ children }) => {
                 await contractInstance.apis.Contributors.timedOut(parseInt(what[1]), 0);
                 break;
             default:
-                alert('Unhandled error..');
+                // alert('Unhandled error..');
                 break;
         }
     };

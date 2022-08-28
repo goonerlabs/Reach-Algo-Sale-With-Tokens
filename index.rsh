@@ -2,7 +2,7 @@
 
 const [isOutcome, PASSED, INPROGRESS] = makeEnum(2);
 
-const DEADLINE = 2000;
+const DEADLINE = 200;
 
 const state = Bytes(20);
 
@@ -107,10 +107,12 @@ export const main = Reach.App(() => {
     const amtContributed = new Map(Address, UInt);
     const contributorsSet = new Set();
     Projects.created(project.id, project.title, project.link, project.description, project.owner, getContract());
-    const [count, amtTotal, lastAddress, KeepGoing] =
+
+    const [timeRemaining, keepGoing] = makeDeadline(DEADLINE);
+    const [count, amtTotal, lastAddress, dontStop] =
       parallelReduce([0, 0, Deployer, true])
         .invariant(balance() == balance())
-        .while(KeepGoing)
+        .while(keepGoing() && dontStop)
         .api_(Contributors.contribute, (amt) => {
           check(amt > 0, "Contribution too small");
           const payment = amt;
@@ -144,9 +146,9 @@ export const main = Reach.App(() => {
             }
           }];
         })
-        .timeout(absoluteTime(end), () => {
+        .timeout(timeRemaining(), () => {
           Deployer.publish();
-          return [count, amtTotal, lastAddress, KeepGoing];
+          return [count, amtTotal, lastAddress, dontStop];
         });
 
     if (checkStatus(project.hardCap, amtTotal) == PASSED) {

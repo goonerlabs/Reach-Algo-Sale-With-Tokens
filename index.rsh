@@ -2,7 +2,7 @@
 
 const [isOutcome, PASSED, INPROGRESS] = makeEnum(2);
 
-const DEADLINE = 200;
+const DEADLINE = 100;
 
 const state = Bytes(20);
 

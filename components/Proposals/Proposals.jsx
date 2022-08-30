@@ -10,14 +10,14 @@ const Proposals = () => {
     const [page, setPage] = useState(1);
     const [pageNumbers, setPageNumbers] = useState([]);
 
-    // useEffect(() => {
-    //     const x = [], runs = Math.ceil(proposals.length / 5);
-    //     let i = 0;
-    //     for (i; i < runs; i++) {
-    //         x.push(i);
-    //     }
-    //     setPageNumbers(x);
-    // }, [proposals]);
+    useEffect(() => {
+        const x = [], runs = Math.ceil(proposals.length / 5);
+        let i = 0;
+        for (i; i < runs; i++) {
+            x.push(i);
+        }
+        setPageNumbers(x);
+    }, [proposals]);
 
     const PageNumbers = ({ index }) => {
         return (
@@ -68,7 +68,7 @@ const Proposals = () => {
                             ) }> <strong>Owner:</strong> { el.owner }</span>
                             <a className={ fmtClasses(
                                 proposal.readMe,
-                            ) } href={ el.link } target="_blank" rel="noreferrer">View Proposal Details</a>
+                            ) } href={ el.link } target="_blank" rel="noreferrer">View Project Details</a>
                         </div>
                     </li>
                 </ul>

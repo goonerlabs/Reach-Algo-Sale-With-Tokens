@@ -85,6 +85,7 @@ export const main = Reach.App(() => {
       const project = declassify(interact.getProject);
     })
     Deployer.publish(project);
+    // require(project.hardCap > project.softCap);
     commit();
     
   
@@ -115,35 +116,17 @@ export const main = Reach.App(() => {
         .while(keepGoing() && stop !== true)
         .api_(Contributors.contribute, (amt) => {
           check(amt > 0, "Contribution too small");
-          const payment = amt;
+          // once the api makes the call they have already paid so check should be here
+          // if is member amt = 0 else amt
+          const fromMapAmt = (m) => fromMaybe(m, (() => 0), ((x) => x));
+          const payment = (amtContributed[this] == fromMapAmt(amtContributed[this])) ? 0 : (amt > project.maxContribution) ? project.maxContribution : (amt < project.minContribution) ? project.maxContribution : amt;
           return [payment, (notify) => {
-            notify(balance());
-            if (contributorsSet.member(this)) {
-              const fromMapAmt = (m) => fromMaybe(m, (() => 0), ((x) => x));
-              amtContributed[this] = fromMapAmt(amtContributed[this]);
-              const actualAmt = 0;
-              return [amtTotal + actualAmt, this, checkStatus(project.hardCap, amtTotal + actualAmt) == INPROGRESS ? false : true];
-            } else {
-              if (amt > project.maxContribution) {
-                contributors[this] = this;
-                contributorsSet.insert(this);
-                amtContributed[this] = project.maxContribution;
-                const actualAmt = project.maxContribution;
-                return [amtTotal + actualAmt, this, checkStatus(project.hardCap, amtTotal + actualAmt) == INPROGRESS ? false : true];
-              } else if (amt < project.minContribution) {
-                contributors[this] = this;
-                contributorsSet.insert(this);
-                amtContributed[this] = project.minContribution;
-                const actualAmt = project.minContribution;
-                return [amtTotal + actualAmt, this, checkStatus(project.hardCap, amtTotal + actualAmt) == INPROGRESS ? false : true];
-              } else {
-                contributors[this] = this;
-                contributorsSet.insert(this);
-                amtContributed[this] = amt;
-                const actualAmt = amt;
-                return [amtTotal + actualAmt, this, checkStatus(project.hardCap, amtTotal + actualAmt) == INPROGRESS ? false : true];
-              }
-            }
+            notify(balance())            
+            contributors[this] = this;
+            contributorsSet.insert(this);
+            amtContributed[this] = amt;
+            const actualAmt = amt;
+            return [amtTotal + actualAmt, this, checkStatus(project.hardCap, amtTotal + actualAmt) == INPROGRESS ? false : true];
           }];
         })
         .timeout(timeRemaining(), () => {
@@ -221,7 +204,7 @@ export const main = Reach.App(() => {
         const currentBalance = parallelReduce(balance())
           .invariant(balance() == balance())
           .while(currentBalance > 0)
-          .api(Contributors.claimRefund, (notify => {
+          .api(Contributors.claimRefund, (notify) => {
             if (balance() >= fromMapAmt(amtContributed[this]) && contributorsSet.member(this)) {
               transfer(fromMapAmt(amtContributed[this])).to(
                 fromMapAdd(contributors[this]));
@@ -234,7 +217,7 @@ export const main = Reach.App(() => {
               notify(false);
               return currentBalance;
             }
-          }));
+          });
       }
     }
   } else {
